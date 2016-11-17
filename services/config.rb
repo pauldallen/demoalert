@@ -11,26 +11,26 @@
 ## end
 ##
 
-coreo_aws_advisor_alert "redshift-no-require-ssl" do
+coreo_aws_advisor_alert "redshift-no-user-logging" do
   action :define
   service :redshift
-  link "http://kb.cloudcoreo.com/mydoc_redshift-no-require-ssl.html"
-  display_name "Connections to Redshift not required to use SSL encryption"
-  description "Connections to Redshift aren't set to require the use of SSL encryption."
-  category "Security"
-  suggested_action "Enable Redshift to require the use of SSL encrypted connections."
-  level "Critical"
-  objectives     ["cluster_parameter_groups", "cluster_parameters", "cluster_parameters"]
+  link "http://kb.cloudcoreo.com/mydoc_redshift-no-user-logging.html"
+  display_name "Redshift user activity logging is disabled"
+  description "Redshift user activity logging is disabled."
+  category "Audit"
+  suggested_action "Enable Redshift user activity logging."
+  level "Warning"
+  objectives ["cluster_parameter_groups", "cluster_parameters", "cluster_parameters"]
   call_modifiers [{}, {:parameter_group_name => "parameter_groups.parameter_group_name"}, {:parameter_group_name => "parameter_groups.parameter_group_name"}]
   id_map "modifiers.parameter_group_name"
-  audit_objects  ["", "parameters.parameter_name", "parameters.parameter_value"]
-  operators      ["", "==", "=="]
-  alert_when     ["", "require_ssl", false]
+  audit_objects ["", "parameters.parameter_name", "parameters.parameter_value"]
+  operators ["", "==", "=="]
+  alert_when ["", "enable_user_activity_logging", false]
 end
 
 coreo_aws_advisor_redshift "advise-redshift" do
   action :advise
-  alerts ["redshift-no-require-ssl"]
+  alerts ["redshift-no-user-logging"]
 end
 
 coreo_uni_util_notify "send-email" do
