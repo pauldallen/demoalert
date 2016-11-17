@@ -11,14 +11,35 @@
 ## end
 ##
 
+coreo_aws_advisor_alert "redshift-no-require-ssl" do
+  action :define
+  service :redshift
+  link "http://kb.cloudcoreo.com/mydoc_redshift-no-require-ssl.html"
+  display_name "Connections to Redshift not required to use SSL encryption"
+  description "Connections to Redshift aren't set to require the use of SSL encryption."
+  category "Security"
+  suggested_action "Enable Redshift to require the use of SSL encrypted connections."
+  level "Critical"
+  objectives     ["cluster_parameter_groups", "cluster_parameters", "cluster_parameters"]
+  call_modifiers [{}, {:parameter_group_name => "parameter_groups.parameter_group_name"}, {:parameter_group_name => "parameter_groups.parameter_group_name"}]
+  id_map "modifiers.parameter_group_name"
+  audit_objects  ["", "parameters.parameter_name", "parameters.parameter_value"]
+  operators      ["", "==", "=="]
+  alert_when     ["", "require_ssl", false]
+end
+
+coreo_aws_advisor_redshift "advise-redshift" do
+  action :advise
+  alerts ["redshift-no-require-ssl"]
+end
 
 coreo_uni_util_notify "send-email" do
   action :notify
   type 'email'
   allow_empty true
   send_on "always"
-  payload '{}'
-  payload_type "text"
+  payload "COMPOSITE::coreo_aws_advisor_redshift.advise-redshift.report"
+  payload_type "json"
   endpoint ({
       :to => 'paul@cloudcoreo.com', :subject => 'test alert'
   })
